@@ -16,7 +16,9 @@
       "badges": ["Nouveauté", "Exclusif"],
       "materials": ["Or 18 carats", "Diamants", "Saphirs"],
       "dimensions": "Longueur: 4cm, Largeur: 2cm",
-      "weight": "12g"
+      "weight": "12g",
+      "stock": 5,
+      "stockStatus": "in_stock"
     },
     {
       "id": 2,
@@ -34,7 +36,9 @@
       "badges": ["Premium"],
       "materials": ["Or blanc 18 carats", "Diamants certifiés GIA"],
       "dimensions": "Longueur: 45cm, Pendentif: 3cm",
-      "weight": "28g"
+      "weight": "28g",
+      "stock": 2,
+      "stockStatus": "low_stock"
     },
     {
       "id": 3,
@@ -52,7 +56,9 @@
       "badges": ["Collection limitée"],
       "materials": ["Or 18 carats", "Saphir Ceylon", "Diamants"],
       "dimensions": "Taille: 52, Largeur bandeau: 3mm",
-      "weight": "8g"
+      "weight": "8g",
+      "stock": 0,
+      "stockStatus": "out_of_stock"
     },
     {
       "id": 4,
@@ -70,7 +76,9 @@
       "badges": ["Tendance"],
       "materials": ["Or rose 18 carats", "Pierres de lune"],
       "dimensions": "Longueur: 18cm, Largeur: 0.5cm",
-      "weight": "15g"
+      "weight": "15g",
+      "stock": 8,
+      "stockStatus": "in_stock"
     },
     {
       "id": 5,
@@ -88,7 +96,9 @@
       "badges": ["Artisanal"],
       "materials": ["Or 14 carats", "Émaux", "Petits diamants"],
       "dimensions": "Hauteur: 6cm, Largeur: 4cm",
-      "weight": "22g"
+      "weight": "22g",
+      "stock": 3,
+      "stockStatus": "low_stock"
     },
     {
       "id": 6,
@@ -106,7 +116,9 @@
       "badges": ["Élégant"],
       "materials": ["Argent 925 plaqué or", "Cristaux Swarovski"],
       "dimensions": "Longueur: 7cm, Largeur: 1.5cm",
-      "weight": "18g"
+      "weight": "18g",
+      "stock": 10,
+      "stockStatus": "in_stock"
     }
   ]
 }

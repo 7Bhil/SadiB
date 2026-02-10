@@ -24,10 +24,10 @@
           <button class="icon-btn" aria-label="Recherche">
             <i class="fas fa-search"></i>
           </button>
-          <button class="icon-btn" aria-label="Panier">
+          <router-link to="/panier" class="icon-btn" aria-label="Panier">
             <i class="fas fa-shopping-bag"></i>
-            <span class="badge">2</span>
-          </button>
+            <span v-if="cartCount > 0" class="badge">{{ cartCount }}</span>
+          </router-link>
           <button class="mobile-toggle" @click="mobileOpen = !mobileOpen" aria-label="Menu">
             <div class="hamburger" :class="{ 'active': mobileOpen }">
               <span></span><span></span>
@@ -159,7 +159,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useCartStore } from '../stores/cart'
+
+const cartStore = useCartStore()
+const cartCount = computed(() => cartStore.count)
 
 const mobileOpen = ref(false)
 const isScrolled = ref(false)

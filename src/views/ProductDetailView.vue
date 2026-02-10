@@ -33,74 +33,70 @@
 
     <section v-else-if="product" class="product-content">
       <div class="container">
-        <div class="product-grid">
-          <div class="product-image-section">
+        <div class="product-layout">
+          <!-- Product Images -->
+          <div class="product-gallery">
             <div class="main-image">
-              <div class="image-placeholder-large">
-                <i class="fas fa-gem"></i>
-                <span>{{ product.name }}</span>
+              <div class="image-container">
+                <div v-if="product.images && product.images.length > 0" class="product-image">
+                  <img :src="product.images[currentImage - 1]" :alt="product.name" />
+                </div>
+                <div v-else class="image-placeholder-large">
+                  <i class="fas fa-gem"></i>
+                  <span>{{ product.name }}</span>
+                </div>
               </div>
             </div>
             
-            <div class="image-thumbnails">
+            <div v-if="product.images && product.images.length > 1" class="image-thumbnails">
               <div 
-                v-for="i in 3" 
-                :key="i"
+                v-for="(image, index) in product.images" 
+                :key="index"
                 class="thumbnail"
-                :class="{ active: currentImage === i }"
-                @click="currentImage = i"
+                :class="{ active: currentImage === index + 1 }"
+                @click="currentImage = index + 1"
               >
-                <div class="thumbnail-placeholder">
-                  <i class="fas fa-gem"></i>
-                </div>
+                <img :src="image" :alt="`${product.name} - Image ${index + 1}`" />
               </div>
             </div>
           </div>
 
-          <div class="product-info-section">
+          <!-- Product Information -->
+          <div class="product-details">
             <div class="product-header">
-              <span class="category">{{ product.category }}</span>
-              <h1>{{ product.name }}</h1>
-              <p class="reference">Référence: {{ product.reference }}</p>
-            </div>
-
-            <div class="price-section">
-              <div class="price">
-                {{ formatPrice(product.price, product.currency) }}
-              </div>
-              
-              <div v-if="product.badges?.length" class="badges">
-                <span
-                  v-for="badge in product.badges"
-                  :key="badge"
-                  class="badge"
-                >
+              <div class="product-badges" v-if="product.badges && product.badges.length">
+                <span v-for="badge in product.badges" :key="badge" class="badge">
                   {{ badge }}
                 </span>
               </div>
+              
+              <h1 class="product-title">{{ product.name }}</h1>
+              <p class="product-reference">Référence: {{ product.reference }}</p>
+              <p class="product-category">{{ product.category }}</p>
             </div>
 
-            <div class="description-section">
-              <h3>Description</h3>
-              <p>{{ product.description }}</p>
+            <div class="price-section">
+              <div class="price-info">
+                <span class="current-price">{{ formatPrice(product.price, product.currency) }}</span>
+                <span v-if="!isInStock" class="out-of-stock">Rupture de stock</span>
+                <span v-else-if="product.stock <= 3" class="low-stock">Plus que {{ product.stock }} disponibles</span>
+              </div>
             </div>
 
-            <div class="product-features">
-              <h3>Caractéristiques</h3>
-              <ul>
-                <li><i class="fas fa-check"></i> Matériaux de haute qualité</li>
-                <li><i class="fas fa-check"></i> Certificat d'authenticité inclus</li>
-                <li><i class="fas fa-check"></i> Livraison sécurisée</li>
-                <li><i class="fas fa-check"></i> Garantie 2 ans</li>
-              </ul>
-            </div>
-
-            <div class="action-section">
+            <div class="purchase-actions">
+              <button 
+                class="btn btn-gold btn-large" 
+                @click="addToCart"
+                :disabled="!isInStock"
+              >
+                <i class="fas fa-shopping-cart"></i>
+                {{ isInStock ? 'Ajouter au panier' : 'Indisponible' }}
+              </button>
+              
               <a
                 :href="buildProductWhatsAppUrl(product)"
                 target="_blank"
-                rel="noopener"
-                class="btn-whatsapp-large"
+                class="btn btn-outline btn-large"
               >
                 <i class="fab fa-whatsapp"></i>
                 Commander sur WhatsApp
@@ -110,6 +106,39 @@
                 <i :class="isFavorite ? 'fas fa-heart' : 'far fa-heart'"></i>
                 {{ isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}
               </button>
+            </div>
+
+            <div class="product-description">
+              <h3>Description</h3>
+              <p>{{ product.description }}</p>
+            </div>
+
+            <div class="product-specs">
+              <h3>Caractéristiques</h3>
+              <div class="specs-grid">
+                <div class="spec-item" v-if="product.materials">
+                  <span class="spec-label">Matériaux:</span>
+                  <span class="spec-value">{{ product.materials.join(', ') }}</span>
+                </div>
+                <div class="spec-item" v-if="product.dimensions">
+                  <span class="spec-label">Dimensions:</span>
+                  <span class="spec-value">{{ product.dimensions }}</span>
+                </div>
+                <div class="spec-item" v-if="product.weight">
+                  <span class="spec-label">Poids:</span>
+                  <span class="spec-value">{{ product.weight }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="product-features">
+              <h3>Services inclus</h3>
+              <ul>
+                <li><i class="fas fa-check"></i> Certificat d'authenticité</li>
+                <li><i class="fas fa-check"></i> Livraison sécurisée</li>
+                <li><i class="fas fa-check"></i> Garantie 2 ans</li>
+                <li><i class="fas fa-check"></i> Emballage premium</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -123,8 +152,10 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { fetchProductById } from '../services/api'
 import { buildWhatsAppUrl } from '../utils/whatsapp'
+import { useCartStore } from '../stores/cart'
 
 const route = useRoute()
+const cartStore = useCartStore()
 const product = ref(null)
 const loading = ref(true)
 const error = ref('')
@@ -132,6 +163,52 @@ const currentImage = ref(1)
 const isFavorite = ref(false)
 
 const productId = computed(() => route.params.id)
+
+const isInStock = computed(() => {
+  return product.value && product.value.stock > 0
+})
+
+const addToCart = () => {
+  if (product.value && isInStock.value) {
+    cartStore.addToCart(product.value, 1)
+    // Show success notification
+    const notification = document.createElement('div')
+    notification.className = 'cart-notification'
+    notification.innerHTML = `
+      <i class="fas fa-check-circle"></i>
+      <span>Produit ajouté au panier!</span>
+    `
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--color-gold);
+      color: var(--color-black);
+      padding: 15px 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 9999;
+      animation: slideIn 0.3s ease-out;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    `
+    
+    document.body.appendChild(notification)
+    
+    setTimeout(() => {
+      notification.style.animation = 'slideOut 0.3s ease-out'
+      setTimeout(() => {
+        document.body.removeChild(notification)
+      }, 300)
+    }, 3000)
+  }
+}
+
+const toggleFavorite = () => {
+  isFavorite.value = !isFavorite.value
+  // TODO: Sauvegarder dans localStorage ou backend
+}
 
 const formatPrice = (amount, currency) => {
   if (typeof amount !== 'number') return ''
@@ -146,11 +223,6 @@ const buildProductWhatsAppUrl = (product) => {
   const reference = product?.reference || ''
   const message = `Bonjour, je souhaite finaliser une commande pour le bijou "${name}" (réf. ${reference}) chez SadiB.`
   return buildWhatsAppUrl(message)
-}
-
-const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value
-  // TODO: Sauvegarder dans localStorage ou backend
 }
 
 onMounted(async () => {
@@ -182,80 +254,49 @@ onMounted(async () => {
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: var(--color-gold);
+  gap: 10px;
+  color: var(--color-text);
   text-decoration: none;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 16px;
   transition: var(--transition-smooth);
 }
 
 .back-link:hover {
-  color: var(--color-gold-light);
-  transform: translateX(-4px);
-}
-
-.loading-section, .error-section {
-  min-height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.luxury-loader {
-  text-align: center;
   color: var(--color-gold);
 }
 
-.luxury-loader i {
-  font-size: 48px;
-  margin-bottom: 20px;
-}
-
-.gold-shimmer {
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.1); }
-  100% { opacity: 0.5; transform: scale(1); }
-}
-
-.error-message {
-  text-align: center;
-  color: var(--color-text);
-}
-
-.error-message i {
-  font-size: 48px;
-  color: #ff6b6b;
-  margin-bottom: 20px;
-}
-
-.error-message h3 {
-  margin-bottom: 10px;
-}
-
 .product-content {
-  padding: 60px 0 100px;
+  padding: 40px 0 80px;
 }
 
-.product-grid {
+.product-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 80px;
+  gap: 60px;
   align-items: start;
 }
 
-.product-image-section {
+/* Gallery Styles */
+.product-gallery {
   position: sticky;
   top: 100px;
 }
 
 .main-image {
   margin-bottom: 20px;
+}
+
+.image-container {
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.product-image img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  display: block;
 }
 
 .image-placeholder-large {
@@ -266,169 +307,140 @@ onMounted(async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 30px;
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: 8px;
+  color: var(--color-gold);
 }
 
 .image-placeholder-large i {
-  font-size: 84px;
-  color: var(--color-gold);
-  opacity: 0.2;
+  font-size: 48px;
+  margin-bottom: 20px;
 }
 
 .image-thumbnails {
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
 }
 
 .thumbnail {
+  flex-shrink: 0;
   width: 80px;
   height: 80px;
-  border: 2px solid transparent;
-  border-radius: 4px;
+  border-radius: 8px;
+  overflow: hidden;
   cursor: pointer;
+  border: 2px solid transparent;
   transition: var(--transition-smooth);
+}
+
+.thumbnail:hover {
+  border-color: var(--color-gold);
 }
 
 .thumbnail.active {
   border-color: var(--color-gold);
 }
 
-.thumbnail-placeholder {
+.thumbnail img {
   width: 100%;
   height: 100%;
-  background: #1a1a1a;
+  object-fit: cover;
+}
+
+/* Product Details */
+.product-details {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 2px;
-}
-
-.thumbnail-placeholder i {
-  color: var(--color-royal-light);
-  opacity: 0.5;
-}
-
-.product-info-section {
-  padding: 20px 0;
+  flex-direction: column;
+  gap: 30px;
 }
 
 .product-header {
-  margin-bottom: 30px;
+  border-bottom: 1px solid rgba(249, 245, 241, 0.1);
+  padding-bottom: 20px;
 }
 
-.category {
-  display: inline-block;
-  color: var(--color-gold);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
-}
-
-.product-header h1 {
-  font-size: 42px;
-  margin-bottom: 10px;
-  line-height: 1.2;
-}
-
-.reference {
-  color: var(--color-text-muted);
-  font-size: 14px;
-}
-
-.price-section {
-  margin-bottom: 40px;
-}
-
-.price {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--color-gold);
-  margin-bottom: 15px;
-}
-
-.badges {
+.product-badges {
   display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
   flex-wrap: wrap;
-  gap: 8px;
 }
 
 .badge {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(212, 175, 55, 0.5);
+  background: var(--color-gold);
+  color: var(--color-black);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.description-section {
-  margin-bottom: 40px;
+.product-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 8px;
+  line-height: 1.2;
 }
 
-.description-section h3 {
-  font-size: 20px;
-  margin-bottom: 15px;
-}
-
-.description-section p {
-  line-height: 1.8;
+.product-reference {
   color: var(--color-text-muted);
+  font-size: 14px;
+  margin-bottom: 5px;
 }
 
-.product-features {
-  margin-bottom: 40px;
-}
-
-.product-features h3 {
-  font-size: 20px;
+.product-category {
+  color: var(--color-gold);
+  font-size: 16px;
+  font-weight: 500;
   margin-bottom: 20px;
 }
 
-.product-features ul {
-  list-style: none;
+.price-section {
+  margin-bottom: 30px;
 }
 
-.product-features li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.product-features i {
+.current-price {
+  font-size: 36px;
+  font-weight: 700;
   color: var(--color-gold);
+  display: block;
+  margin-bottom: 10px;
 }
 
-.action-section {
+.out-of-stock {
+  color: #ff4444;
+  font-size: 16px;
+  font-weight: 500;
+  display: block;
+  margin-top: 10px;
+}
+
+.low-stock {
+  color: #ff9800;
+  font-size: 14px;
+  font-weight: 500;
+  display: block;
+  margin-top: 5px;
+}
+
+.purchase-actions {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  margin-bottom: 30px;
 }
 
-.btn-whatsapp-large {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 16px 24px;
-  border-radius: 8px;
-  border: 2px solid rgba(37, 211, 102, 0.7);
-  background: rgba(37, 211, 102, 0.1);
-  color: #25d366;
-  text-decoration: none;
+.btn-large {
+  padding: 18px 30px;
   font-size: 16px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: var(--transition-smooth);
+  width: 100%;
+  justify-content: center;
 }
 
-.btn-whatsapp-large:hover {
-  background: rgba(37, 211, 102, 0.2);
-  transform: translateY(-2px);
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-favorite {
@@ -447,32 +459,173 @@ onMounted(async () => {
 }
 
 .btn-favorite:hover {
+  background: rgba(212, 175, 55, 0.1);
   border-color: var(--color-gold);
   color: var(--color-gold);
 }
 
+.product-description,
+.product-specs,
+.product-features {
+  background: var(--color-surface);
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.product-description h3,
+.product-specs h3,
+.product-features h3 {
+  font-size: 18px;
+  color: var(--color-text);
+  margin-bottom: 15px;
+}
+
+.product-description p {
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.specs-grid {
+  display: grid;
+  gap: 15px;
+}
+
+.spec-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(249, 245, 241, 0.1);
+}
+
+.spec-label {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.spec-value {
+  color: var(--color-text);
+  font-weight: 500;
+  text-align: right;
+}
+
+.product-features ul {
+  list-style: none;
+  padding: 0;
+}
+
+.product-features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  color: var(--color-text);
+}
+
+.product-features i {
+  color: var(--color-gold);
+}
+
+/* Loading and Error States */
+.loading-section,
+.error-section {
+  padding: 100px 5%;
+  text-align: center;
+}
+
+.luxury-loader {
+  color: var(--color-gold);
+}
+
+.luxury-loader i {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.error-message {
+  background: var(--color-surface);
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.error-message i {
+  font-size: 48px;
+  color: #ff4444;
+  margin-bottom: 20px;
+}
+
+.error-message h3 {
+  color: var(--color-text);
+  margin-bottom: 15px;
+}
+
+.error-message p {
+  color: var(--color-text-muted);
+  margin-bottom: 30px;
+}
+
+/* Cart notification animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Responsive Design */
 @media (max-width: 1024px) {
-  .product-grid {
+  .product-layout {
     grid-template-columns: 1fr;
     gap: 40px;
   }
   
-  .product-image-section {
+  .product-gallery {
     position: static;
+  }
+  
+  .product-image img,
+  .image-placeholder-large {
+    height: 400px;
   }
 }
 
 @media (max-width: 768px) {
-  .product-header h1 {
-    font-size: 32px;
+  .product-content {
+    padding: 20px 0 40px;
   }
   
-  .price {
+  .product-title {
     font-size: 24px;
   }
   
-  .image-placeholder-large {
-    height: 300px;
+  .current-price {
+    font-size: 28px;
+  }
+  
+  .purchase-actions {
+    gap: 12px;
+  }
+  
+  .product-description,
+  .product-specs,
+  .product-features {
+    padding: 20px;
   }
 }
 </style>
