@@ -1,0 +1,112 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Éclat Solaire",
+      "category": "Boucles d'oreilles",
+      "price": 2450,
+      "currency": "XOF",
+      "reference": "ES-2026-001",
+      "description": "Des boucles d'oreilles magnifiques inspirées par l'éclat du soleil, ornées de pierres précieuses dorées.",
+      "images": [
+        "/images/products/eclat-solaire-1.jpg",
+        "/images/products/eclat-solaire-2.jpg"
+      ],
+      "featured": true,
+      "badges": ["Nouveauté", "Exclusif"],
+      "materials": ["Or 18 carats", "Diamants", "Saphirs"],
+      "dimensions": "Longueur: 4cm, Largeur: 2cm",
+      "weight": "12g"
+    },
+    {
+      "id": 2,
+      "name": "Nuit Étoilée",
+      "category": "Collier Diamant",
+      "price": 5800,
+      "currency": "XOF",
+      "reference": "NE-2026-002",
+      "description": "Un collier spectaculaire capturant la magie d'une nuit étoilée avec des diamants scintillants.",
+      "images": [
+        "/images/products/nuit-etoilee-1.jpg",
+        "/images/products/nuit-etoilee-2.jpg"
+      ],
+      "featured": true,
+      "badges": ["Premium"],
+      "materials": ["Or blanc 18 carats", "Diamants certifiés GIA"],
+      "dimensions": "Longueur: 45cm, Pendentif: 3cm",
+      "weight": "28g"
+    },
+    {
+      "id": 3,
+      "name": "Aube Royale",
+      "category": "Bague Saphir",
+      "price": 3200,
+      "currency": "XOF",
+      "reference": "AR-2026-003",
+      "description": "Une bague royale avec un saphir bleu profond entouré de diamants étincelants.",
+      "images": [
+        "/images/products/aube-royale-1.jpg",
+        "/images/products/aube-royale-2.jpg"
+      ],
+      "featured": true,
+      "badges": ["Collection limitée"],
+      "materials": ["Or 18 carats", "Saphir Ceylon", "Diamants"],
+      "dimensions": "Taille: 52, Largeur bandeau: 3mm",
+      "weight": "8g"
+    },
+    {
+      "id": 4,
+      "name": "Lune de Miel",
+      "category": "Bracelet",
+      "price": 1800,
+      "currency": "XOF",
+      "reference": "LM-2026-004",
+      "description": "Un bracelet délicat avec des pierres de lune qui capturent la douceur d'une lune de miel.",
+      "images": [
+        "/images/products/lune-de-miel-1.jpg",
+        "/images/products/lune-de-miel-2.jpg"
+      ],
+      "featured": false,
+      "badges": ["Tendance"],
+      "materials": ["Or rose 18 carats", "Pierres de lune"],
+      "dimensions": "Longueur: 18cm, Largeur: 0.5cm",
+      "weight": "15g"
+    },
+    {
+      "id": 5,
+      "name": "Jardin Secret",
+      "category": "Broche",
+      "price": 950,
+      "currency": "XOF",
+      "reference": "JS-2026-005",
+      "description": "Une broche artistique représentant un jardin secret avec des émaux colorés.",
+      "images": [
+        "/images/products/jardin-secret-1.jpg",
+        "/images/products/jardin-secret-2.jpg"
+      ],
+      "featured": false,
+      "badges": ["Artisanal"],
+      "materials": ["Or 14 carats", "Émaux", "Petits diamants"],
+      "dimensions": "Hauteur: 6cm, Largeur: 4cm",
+      "weight": "22g"
+    },
+    {
+      "id": 6,
+      "name": "Cascade de Cristal",
+      "category": "Boucles d'oreilles pendantes",
+      "price": 1450,
+      "currency": "XOF",
+      "reference": "CC-2026-006",
+      "description": "Des boucles d'oreilles pendantes qui imitent une cascade de cristal scintillante.",
+      "images": [
+        "/images/products/cascade-cristal-1.jpg",
+        "/images/products/cascade-cristal-2.jpg"
+      ],
+      "featured": false,
+      "badges": ["Élégant"],
+      "materials": ["Argent 925 plaqué or", "Cristaux Swarovski"],
+      "dimensions": "Longueur: 7cm, Largeur: 1.5cm",
+      "weight": "18g"
+    }
+  ]
+}

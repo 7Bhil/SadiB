@@ -86,7 +86,7 @@ const formatPrice = (amount, currency) => {
 
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
-    currency: currency || 'EUR'
+    currency: currency || 'XOF'
   }).format(amount)
 }
 

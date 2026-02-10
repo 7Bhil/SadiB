@@ -37,8 +37,21 @@
             <p>Une sélection exclusive de nos créations les plus prestigieuses.</p>
           </div>
 
-          <div class="product-grid">
-            <div v-for="(item, index) in featuredProducts" :key="index" class="product-card reveal" :style="{ transitionDelay: (index * 100) + 'ms' }">
+          <div v-if="loading" class="content-placeholder">
+            <div class="luxury-loader">
+              <i class="fas fa-gem gold-shimmer"></i>
+              <p>Chargement de la collection...</p>
+            </div>
+          </div>
+
+          <div v-else class="product-grid">
+            <router-link 
+              v-for="(item, index) in featuredProducts" 
+              :key="item.id" 
+              :to="`/produit/${item.id}`" 
+              class="product-card reveal" 
+              :style="{ transitionDelay: (index * 100) + 'ms' }"
+            >
               <div class="product-image">
                 <div class="image-placeholder">
                   <i class="fas fa-gem"></i>
@@ -51,9 +64,9 @@
               <div class="product-info">
                 <h3>{{ item.name }}</h3>
                 <p class="category">{{ item.category }}</p>
-                <p class="price">{{ item.price }}</p>
+                <p class="price">{{ formatPrice(item.price, item.currency) }}</p>
               </div>
-            </div>
+            </router-link>
           </div>
         </div>
       </section>
@@ -88,12 +101,40 @@
 </template>
 
 <script setup>
-const featuredProducts = [
-  { name: 'Éclat Solaire', category: 'Boucles d\'oreilles', price: '2,450 €' },
-  { name: 'Nuit Étoilée', category: 'Collier Diamant', price: '5,800 €' },
-  { name: 'Aube Royale', category: 'Bague Saphir', price: '3,200 €' },
-  { name: 'Essence d\'Or', category: 'Bracelet Gourmette', price: '1,950 €' }
-]
+import { ref, onMounted } from 'vue'
+
+const featuredProducts = ref([])
+const loading = ref(true)
+
+const formatPrice = (price, currency = 'XOF') => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: currency
+  }).format(price)
+}
+
+const loadProducts = async () => {
+  try {
+    const response = await fetch('/products.json')
+    const data = await response.json()
+    featuredProducts.value = data.products.filter(product => product.featured)
+  } catch (error) {
+    console.error('Erreur lors du chargement des produits:', error)
+    // Fallback vers les données par défaut
+    featuredProducts.value = [
+      { name: 'Éclat Solaire', category: 'Boucles d\'oreilles', price: '2,450 €' },
+      { name: 'Nuit Étoilée', category: 'Collier Diamant', price: '5,800 €' },
+      { name: 'Aube Royale', category: 'Bague Saphir', price: '3,200 €' },
+      { name: 'Essence d\'Or', category: 'Bracelet Gourmette', price: '1,950 €' }
+    ]
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadProducts()
+})
 </script>
 
 <style scoped>
@@ -265,6 +306,9 @@ const featuredProducts = [
   background: var(--color-surface);
   transition: var(--transition-smooth);
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .product-card:hover {

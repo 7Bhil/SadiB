@@ -1,60 +1,58 @@
-// Mock data pour éviter les erreurs réseau en développement
-const mockProducts = [
-  {
-    id: '1',
-    name: 'Collier Éclat Lunaire',
-    category: 'Colliers',
-    reference: 'CL-001',
-    price: 2450,
-    currency: 'EUR',
-    description: 'Un collier élégant avec pierres fines et argent 925.',
-    badges: ['Nouveauté', 'Exclusif']
-  },
-  {
-    id: '2',
-    name: 'Bracelet Solaire',
-    category: 'Bracelets',
-    reference: 'BR-002',
-    price: 1800,
-    currency: 'EUR',
-    description: 'Bracelet en or jaune 18 carats avec diamants.',
-    badges: ['Best-seller']
-  },
-  {
-    id: '3',
-    name: 'Boucles d\'oreilles Étoiles',
-    category: 'Boucles d\'oreilles',
-    reference: 'BE-003',
-    price: 950,
-    currency: 'EUR',
-    description: 'Boucles d\'oreilles en or blanc avec saphirs.',
-    badges: []
-  },
-  {
-    id: '4',
-    name: 'Anneau Harmonie',
-    category: 'Anneaux',
-    reference: 'AN-004',
-    price: 1200,
-    currency: 'EUR',
-    description: 'Anneau en platine avec émeraude centrale.',
-    badges: ['Collection Limitée']
-  }
-]
-
 // Simuler un délai réseau pour une expérience réaliste
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 export async function fetchProducts() {
-  // Simuler un délai de chargement
-  await delay(800)
-  
-  // Simuler une erreur aléatoire (10% de chance)
-  if (Math.random() < 0.1) {
-    throw new Error('Erreur de connexion au serveur')
+  try {
+    // Simuler un délai de chargement
+    await delay(800)
+    
+    // Charger les produits depuis le fichier JSON
+    const response = await fetch('/products.json')
+    if (!response.ok) {
+      throw new Error('Erreur de chargement des produits')
+    }
+    
+    const data = await response.json()
+    return data.products
+  } catch (error) {
+    console.error('Erreur lors du chargement des produits:', error)
+    
+    // Fallback vers les données mock si le JSON n'est pas disponible
+    const mockProducts = [
+      {
+        id: '1',
+        name: 'Collier Éclat Lunaire',
+        category: 'Colliers',
+        reference: 'CL-001',
+        price: 2450,
+        currency: 'XOF',
+        description: 'Un collier élégant avec pierres fines et argent 925.',
+        badges: ['Nouveauté', 'Exclusif']
+      },
+      {
+        id: '2',
+        name: 'Bracelet Solaire',
+        category: 'Bracelets',
+        reference: 'BR-002',
+        price: 1800,
+        currency: 'XOF',
+        description: 'Bracelet en or jaune 18 carats avec diamants.',
+        badges: ['Best-seller']
+      }
+    ]
+    
+    return mockProducts
   }
-  
-  return mockProducts
+}
+
+export async function fetchProductById(id) {
+  try {
+    const products = await fetchProducts()
+    return products.find(product => product.id === parseInt(id))
+  } catch (error) {
+    console.error('Erreur lors du chargement du produit:', error)
+    return null
+  }
 }
 
 export async function submitContactForm(payload) {

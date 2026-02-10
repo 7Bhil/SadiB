@@ -121,7 +121,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { fetchProducts } from '../services/api'
+import { fetchProductById } from '../services/api'
 import { buildWhatsAppUrl } from '../utils/whatsapp'
 
 const route = useRoute()
@@ -137,7 +137,7 @@ const formatPrice = (amount, currency) => {
   if (typeof amount !== 'number') return ''
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
-    currency: currency || 'EUR'
+    currency: currency || 'XOF'
   }).format(amount)
 }
 
@@ -158,8 +158,7 @@ onMounted(async () => {
     loading.value = true
     error.value = ''
     
-    const products = await fetchProducts()
-    const foundProduct = products.find(p => p.id === productId.value)
+    const foundProduct = await fetchProductById(productId.value)
     
     if (foundProduct) {
       product.value = foundProduct
