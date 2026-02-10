@@ -86,12 +86,20 @@
               </div>
               
               <div class="summary-actions">
-                <router-link to="/checkout" class="btn btn-gold btn-large">
+                <router-link 
+                  v-if="cartItems.length > 0" 
+                  to="/checkout" 
+                  class="btn btn-green btn-large"
+                >
                   <i class="fas fa-lock"></i>
                   Valider la commande
                 </router-link>
                 
-                <button class="btn btn-danger" @click="confirmClearCart">
+                <button 
+                  v-if="cartItems.length > 0" 
+                  class="btn btn-danger" 
+                  @click="confirmClearCart"
+                >
                   <i class="fas fa-trash-alt"></i>
                   Vider le panier
                 </button>
@@ -145,10 +153,10 @@ const confirmClearCart = () => {
         <p class="modal-detail">Cette action supprimera tous les articles ({{ cartCount }}) de votre panier.</p>
       </div>
       <div class="modal-actions">
-        <button class="btn btn-outline" onclick="this.closest('.clear-cart-modal').remove()">
+        <button class="btn btn-outline" onclick="this.closest('.clear-cart-modal').remove()" style="width: auto; max-width: 150px;">
           Annuler
         </button>
-        <button class="btn btn-danger" onclick="window.clearCartAndClose()">
+        <button class="btn btn-danger" onclick="window.clearCartAndClose()" style="width: auto; max-width: 180px;">
           <i class="fas fa-trash-alt"></i>
           Vider le panier
         </button>
@@ -475,7 +483,7 @@ const confirmClearCart = () => {
   background: #ff4444;
   color: white;
   border: 2px solid #ff4444;
-  padding: 15px 25px;
+  padding: 12px 20px;
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
@@ -486,6 +494,8 @@ const confirmClearCart = () => {
   justify-content: center;
   gap: 8px;
   text-decoration: none;
+  width: auto;
+  max-width: 200px;
 }
 
 .btn-danger:hover {
@@ -495,11 +505,11 @@ const confirmClearCart = () => {
   box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
 }
 
-.btn-outline {
-  background: transparent;
-  color: var(--color-text);
-  border: 2px solid rgba(249, 245, 241, 0.3);
-  padding: 15px 25px;
+.btn-green {
+  background: #28a745;
+  color: white;
+  border: 2px solid #28a745;
+  padding: 12px 20px;
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
@@ -510,6 +520,34 @@ const confirmClearCart = () => {
   justify-content: center;
   gap: 8px;
   text-decoration: none;
+  width: auto;
+  max-width: 200px;
+}
+
+.btn-green:hover {
+  background: #218838;
+  border-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-text);
+  border: 2px solid rgba(249, 245, 241, 0.3);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  width: auto;
+  max-width: 200px;
 }
 
 .btn-outline:hover {

@@ -46,27 +46,16 @@
               <!-- Contact Information -->
               <div class="form-section">
                 <h3>Informations de contact</h3>
-                <div class="form-grid">
-                  <div class="form-group">
-                    <label for="firstName">Prénom *</label>
-                    <input 
-                      type="text" 
-                      id="firstName" 
-                      v-model="orderData.firstName"
-                      required
-                      class="form-input"
-                    >
-                  </div>
-                  <div class="form-group">
-                    <label for="lastName">Nom *</label>
-                    <input 
-                      type="text" 
-                      id="lastName" 
-                      v-model="orderData.lastName"
-                      required
-                      class="form-input"
-                    >
-                  </div>
+                <div class="form-group">
+                  <label for="fullName">Nom complet *</label>
+                  <input 
+                    type="text" 
+                    id="fullName" 
+                    v-model="orderData.fullName"
+                    required
+                    placeholder="Votre nom et prénom"
+                    class="form-input"
+                  >
                 </div>
                 
                 <div class="form-group">
@@ -80,54 +69,21 @@
                     class="form-input"
                   >
                 </div>
-                
-                <div class="form-group">
-                  <label for="email">Email</label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    v-model="orderData.email"
-                    placeholder="votre@email.com"
-                    class="form-input"
-                  >
-                </div>
               </div>
 
               <!-- Delivery Information -->
               <div class="form-section">
                 <h3>Adresse de livraison</h3>
                 <div class="form-group">
-                  <label for="address">Adresse complète *</label>
+                  <label for="address">Adresse complète (optionnel)</label>
                   <textarea 
                     id="address" 
                     v-model="orderData.address"
-                    required
                     rows="3"
                     class="form-input"
-                    placeholder="Numéro, rue, quartier..."
+                    placeholder="Numéro, rue, quartier, ville... (Optionnel - nous vous contacterons par téléphone)"
                   ></textarea>
-                </div>
-                
-                <div class="form-grid">
-                  <div class="form-group">
-                    <label for="city">Ville *</label>
-                    <input 
-                      type="text" 
-                      id="city" 
-                      v-model="orderData.city"
-                      required
-                      class="form-input"
-                    >
-                  </div>
-                  <div class="form-group">
-                    <label for="postalCode">Code postal</label>
-                    <input 
-                      type="text" 
-                      id="postalCode" 
-                      v-model="orderData.postalCode"
-                      class="form-input"
-                    >
-                  </div>
+                  <small class="form-hint">Si vous ne remplissez pas ce champ, nous vous contacterons par téléphone pour confirmer votre adresse.</small>
                 </div>
               </div>
 
@@ -218,13 +174,9 @@ const cartTotal = computed(() => cartStore.total)
 const isSubmitting = ref(false)
 
 const orderData = ref({
-  firstName: '',
-  lastName: '',
+  fullName: '',
   phone: '',
-  email: '',
   address: '',
-  city: '',
-  postalCode: '',
   deliveryMethod: 'standard',
   notes: ''
 })
@@ -242,62 +194,52 @@ const generateOrderNumber = () => {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
   const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
-  return `SAD-${year}${month}${day}-${random}`
+  return `SADIB-${year}${month}${day}-${random}`
 }
 
 const submitOrder = async () => {
   try {
     isSubmitting.value = true
     
+    // Generate order number
     const orderNumber = generateOrderNumber()
     
-    // Build order summary for WhatsApp
-    let message = `📋 NOUVELLE COMMANDE SADIB\n\n`
-    message += `🔢 Numéro: ${orderNumber}\n`
-    message += `📅 Date: ${new Date().toLocaleDateString('fr-FR')}\n\n`
+    // Build WhatsApp message
+    let message = `🌟 *NOUVELLE COMMANDE SADIB* 🌟\n\n`
+    message += `📋 *Numéro:* ${orderNumber}\n`
+    message += `📅 *Date:* ${new Date().toLocaleDateString('fr-FR')}\n\n`
     
-    message += `👤 CLIENT:\n`
-    message += `${orderData.value.firstName} ${orderData.value.lastName}\n`
-    message += `📱 ${orderData.value.phone}\n`
-    if (orderData.value.email) message += `📧 ${orderData.value.email}\n`
-    message += `\n`
+    message += `👤 *CLIENT:*\n`
+    message += `${orderData.value.fullName}\n`
+    message += `📱 ${orderData.value.phone}\n\n`
     
-    message += `📍 LIVRAISON:\n`
+    message += `📍 *LIVRAISON:*\n`
     message += `${orderData.value.address}\n`
-    message += `${orderData.value.city} ${orderData.value.postalCode}\n`
     message += `Mode: ${orderData.value.deliveryMethod === 'express' ? 'Express (24-48h)' : 'Standard (3-5j)'}\n\n`
     
-    message += `🛍️ COMMANDE:\n`
+    message += `🛍️ *COMMANDE:*\n`
     cartItems.value.forEach(item => {
-      message += `• ${item.name} x${item.quantity} = ${formatPrice(item.price * item.quantity, item.currency)}\n`
+      message += `• ${item.name} (x${item.quantity}) - ${formatPrice(item.price * item.quantity, item.currency)}\n`
     })
     
-    message += `\n💰 TOTAL: ${formatPrice(cartTotal.value, 'XOF')}\n\n`
+    message += `\n💰 *TOTAL: ${formatPrice(cartTotal.value, 'XOF')}*\n\n`
     
     if (orderData.value.notes) {
-      message += `📝 NOTES: ${orderData.value.notes}\n\n`
+      message += `📝 *Notes:* ${orderData.value.notes}\n\n`
     }
     
-    message += `Merci de confirmer cette commande et procéder au paiement.`
+    message += `🎉 *Merci pour votre confiance!*`
     
-    // Open WhatsApp with order details
-    const whatsappUrl = buildWhatsAppUrl(message)
-    window.open(whatsappUrl, '_blank')
-    
-    // Save order to localStorage for tracking
+    // Create order object
     const order = {
       id: orderNumber,
       date: new Date().toISOString(),
       customer: {
-        firstName: orderData.value.firstName,
-        lastName: orderData.value.lastName,
-        phone: orderData.value.phone,
-        email: orderData.value.email
+        name: orderData.value.fullName,
+        phone: orderData.value.phone
       },
       delivery: {
         address: orderData.value.address,
-        city: orderData.value.city,
-        postalCode: orderData.value.postalCode,
         method: orderData.value.deliveryMethod
       },
       items: cartItems.value,
@@ -308,18 +250,20 @@ const submitOrder = async () => {
     
     // Save to orders history
     const orders = JSON.parse(localStorage.getItem('sadiB-orders') || '[]')
-    orders.push(order)
+    orders.unshift(order)
     localStorage.setItem('sadiB-orders', JSON.stringify(orders))
+    
+    // Open WhatsApp
+    const whatsappUrl = buildWhatsAppUrl(message)
+    window.open(whatsappUrl, '_blank')
     
     // Clear cart and redirect to confirmation
     cartStore.clearCart()
     
-    setTimeout(() => {
-      router.push({
-        name: 'order-confirmation',
-        params: { id: orderNumber }
-      })
-    }, 2000)
+    router.push({
+      name: 'order-confirmation',
+      params: { id: orderNumber }
+    })
     
   } catch (error) {
     console.error('Erreur lors de la soumission:', error)
@@ -447,7 +391,7 @@ const submitOrder = async () => {
 .form-input {
   width: 100%;
   padding: 15px;
-  background: var(--color-black);
+  background: var(--color-surface);
   border: 1px solid rgba(249, 245, 241, 0.2);
   border-radius: 8px;
   color: var(--color-text);
@@ -458,6 +402,19 @@ const submitOrder = async () => {
 .form-input:focus {
   outline: none;
   border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.form-hint {
+  display: block;
+  margin-top: 8px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  font-style: italic;
 }
 
 .delivery-options {

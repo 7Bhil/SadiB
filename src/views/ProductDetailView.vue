@@ -38,25 +38,27 @@
           <div class="product-gallery">
             <div class="main-image">
               <div class="image-container">
-                <div v-if="product.images && product.images.length > 0" class="product-image">
-                  <img :src="product.images[currentImage - 1]" :alt="product.name" />
-                </div>
-                <div v-else class="image-placeholder-large">
-                  <i class="fas fa-gem"></i>
-                  <span>{{ product.name }}</span>
+                <div class="product-image">
+                  <div class="icon-product-image">
+                    <i class="fas fa-gem"></i>
+                    <div class="product-overlay-text">{{ product.name }}</div>
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div v-if="product.images && product.images.length > 1" class="image-thumbnails">
+            <div class="image-thumbnails">
               <div 
-                v-for="(image, index) in product.images" 
+                v-for="index in 3" 
                 :key="index"
                 class="thumbnail"
-                :class="{ active: currentImage === index + 1 }"
-                @click="currentImage = index + 1"
+                :class="{ active: currentImage === index }"
+                @click="currentImage = index"
               >
-                <img :src="image" :alt="`${product.name} - Image ${index + 1}`" />
+                <div class="thumbnail-placeholder">
+                  <i class="fas fa-gem"></i>
+                  <span>{{ index }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -335,6 +337,72 @@ onMounted(async () => {
 
 .thumbnail:hover {
   border-color: var(--color-gold);
+}
+
+.icon-product-image {
+  width: 100%;
+  height: 400px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.icon-product-image i {
+  font-size: 80px;
+  color: var(--color-gold);
+  margin-bottom: 20px;
+  animation: gold-shimmer 3s ease-in-out infinite;
+}
+
+.product-overlay-text {
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.thumbnail-placeholder {
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.thumbnail-placeholder i {
+  font-size: 24px;
+  color: var(--color-gold);
+  margin-bottom: 4px;
+}
+
+.thumbnail-placeholder span {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.thumbnail:hover .thumbnail-placeholder {
+  background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+}
+
+.thumbnail:hover .thumbnail-placeholder i {
+  color: #d4af37;
+}
+
+@keyframes gold-shimmer {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
 .thumbnail.active {
